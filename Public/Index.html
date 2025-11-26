@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puzzle Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #board {
+      width: 300px;
+      height: 300px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 2px;
+    }
+    .tile {
+      width: 100%;
+      height: 100%;
+      background-size: 300px 300px;
+      background-image: url("https://i.imgur.com/0rVehnS.jpeg");
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Game Xếp Hình</h2>
+  <p>Kéo thả để sắp puzzle cho đúng!</p>
+  <div id="board"></div>
+
+  <script>
+    const board = document.getElementById("board");
+    let tiles = [];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function init() {
+      tiles = [];
+      for (let i = 0; i < 9; i++) tiles.push(i);
+      shuffle(tiles);
+
+      board.innerHTML = "";
+      tiles.forEach((num, index) => {
+        const div = document.createElement("div");
+        div.className = "tile";
+        div.style.backgroundPosition = `-${(num % 3) * 100}px -${Math.floor(num / 3) * 100}px`;
+        div.draggable = true;
+        div.dataset.index = index;
+        div.dataset.correct = num;
+
+        div.addEventListener("dragstart", dragStart);
+        div.addEventListener("drop", dropped);
+        div.addEventListener("dragover", (e) => e.preventDefault());
+
+        board.appendChild(div);
+      });
+    }
+
+    let dragged;
+
+    function dragStart(e) {
+      dragged = e.target;
+    }
+
+    function dropped(e) {
+      const target = e.target;
+
+      const tempPos = target.style.backgroundPosition;
+      target.style.backgroundPosition = dragged.style.backgroundPosition;
+      dragged.style.backgroundPosition = tempPos;
+
+      checkWin();
+    }
+
+    function checkWin() {
+      let win = true;
+      [...board.children].forEach((tile, i) => {
+        if (parseInt(tile.dataset.correct) !== i) win = false;
+      });
+      if (win) alert("🎉 Bạn đã hoàn thành!");
+    }
+
+    init();
+  </script>
+</body>
+</html>
